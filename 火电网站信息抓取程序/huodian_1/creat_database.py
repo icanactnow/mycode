@@ -2,7 +2,6 @@ import psycopg2
 
 
 class CreatTb(object):
-
     def __init__(self):
         super(CreatTb, self).__init__()
 
@@ -23,6 +22,8 @@ class CreatTb(object):
           ARTICLE         TEXT     NOT NULL) ;''')  # 在数据库中创建一张表
         conn.commit()
         conn.close()
+
+
 if __name__ == '__main__':
     tb = CreatTb()
     tb.creat_table()

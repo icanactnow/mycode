@@ -4,7 +4,7 @@ import psycopg2
 data = GetData()
 data_list = data.save_value_of_index_data()
 
-
+#
 class Save(object):
     """docstring for save"""
 
