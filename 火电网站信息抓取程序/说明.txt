@@ -1,0 +1,9 @@
+href:http://huodian.bjx.com.cn/
+功能：将上面网页上所有新闻标题以及新闻的内容抓取保存至postgresql数据库对应的表中。
+提高：熟悉数据库使用，以及SQL语句。
+
+4中直接从request获取网页数据有误，待验证
+def get_block(self, block_class_name):
+      block_data = pq(datas)
+
+      return block_data('.{0}'.format(block_class_name)).html()
