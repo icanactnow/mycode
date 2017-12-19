@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 
 from t3c.manager.db import DB
 
-class TongZi(object):
+class TongziNetContent(object):
    def __init__(self):
-      super(TongZi, self).__init__()
+      super(TongziNetContent, self).__init__()
       self.headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows '
                                     'NT 6.3; WOW64; Trident/7.0; .NET4.0E; .NET4.0C; '
                                     '.NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729)'}
@@ -193,17 +193,13 @@ class TongZi(object):
    def save_detial(self, datas, hdyxqk_json):
       insert_sql = 'INSERT INTO "plant_app_core"."tb_daily_production_report" ( date,'\
       'content, create_time, creator) VALUES (%(date)s, %(content)s, %(create_time)s, %(creator)s);'
-
       update_sql = 'UPDATE "plant_app_core"."tb_daily_production_report" '\
       ' SET content=%(content)s, create_time = %(create_time)s, creator = %(creator)s '\
       'WHERE (date=%(date)s);'
-
-      insert_sql2 = 'INSERT INTO "plant_app_core"."tb_huo_dian_qing_kuang" ( date,'\
-      'content, create_time, creator) VALUES (%(date)s, %(content)s, %(create_time)s, %(creator)s);'
-
-      update_sql2 = 'UPDATE "plant_app_core"."tb_huo_dian_qing_kuang" '\
-      ' SET content=%(content)s, create_time = %(create_time)s, creator = %(creator)s '\
-      'WHERE (date=%(date)s);'
+      insert_sql2 = 'INSERT INTO "plant_app_etl"."tb_etl_ddrb" ( date,'\
+         'content) VALUES (%(date)s, %(content)s);'
+      update_sql2 = 'UPDATE "plant_app_etl"."tb_etl_ddrb" '\
+         ' SET content=%(content)s WHERE (date=%(date)s);'
 
       if datas[1] != 'null':
          con = {}
@@ -212,12 +208,13 @@ class TongZi(object):
          con['date'] = datetime.strptime(datas[0], '%Y-%m-%d')
          now = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
          con['create_time'] = datetime.strptime(now, '%Y-%m-%d %H:%M:%S')
-         con['creator'] = '10086'
+         con['creator'] = 'admin'
          con2['content'] = hdyxqk_json[1]
          con2['date'] = datetime.strptime(hdyxqk_json[0], '%Y-%m-%d')
          con2['create_time'] = datetime.now()
-         con2['creator'] = '10086'
+         con2['creator'] = 'admin'
          self.update_insert(insert_sql, update_sql, con)
+         self.update_insert(insert_sql2, update_sql2, con2)
 
    def get_all_day_datas(self):
       with closing(self.db.engine.connect()) as cn:
@@ -251,5 +248,5 @@ class TongZi(object):
       self.get_all_day_datas()
 
 if __name__ == '__main__':
-   test = TongZi()
+   test = TongziNetContent()
    test.start()

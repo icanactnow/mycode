@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*-
-import json
-import requests
-from random import random
-from contextlib import closing
 from pyquery import PyQuery as pq
 from datetime import datetime, timedelta
+import requests
+from contextlib import closing
+import json
+from random import random
 
 from t3c.manager.db import DB
+
 
 class TongZi(object):
    def __init__(self):
@@ -42,19 +43,23 @@ class TongZi(object):
       sjfdl_list = [datas[0], datas[1], datas[6], datas[7], datas[12], datas[13], datas[24], datas[25], datas[30],
                  datas[31], datas[36], datas[37], datas[42], datas[43], datas[48], datas[49], datas[54], datas[55]]
       sjfdl_json = sjfdl_json % (random(), random(), self.partition(sjfdl_list))
+
       jhfdl_json = '{"text": "计划发电量", "placeholder": "请输入二级分类名称", "key": %.17f, ' \
            '"values":[{"text": "计划发电量", "key": %.17f, "inputValue": "%s"}]}'
       jhfdl_list = [datas[2], datas[3], datas[8], datas[9], datas[14], datas[15], datas[26], datas[27], datas[32],
                  datas[33], datas[38], datas[39], datas[50], datas[51], datas[56], datas[57]]
       jhfdl_json = jhfdl_json % (random(), random(), self.partition(jhfdl_list))
+
       fdfhl_json = '{"text": "发电负荷率", "placeholder": "请输入二级分类名称", "key": %.17f, ' \
            '"values":[{"text": "发电负荷率", "key": %.17f, "inputValue": "%s"}]}'
       fdfhl_list = [datas[4], datas[5], datas[10], datas[11], datas[16], datas[17], datas[28], datas[29],
                  datas[34], datas[35], datas[40], datas[41], datas[52], datas[53], datas[58], datas[59]]
       fdfhl_json = fdfhl_json % (random(), random(), self.partition(fdfhl_list))
+
       dlqk_json = dlqk_json % (random(), sjfdl_json, jhfdl_json, fdfhl_json)
 
       return dlqk_json
+
 
    def partition(self, _list, _size=2):
       value = []
@@ -64,6 +69,7 @@ class TongZi(object):
          value.append(' '.join(x))
 
       return ','.join(value)
+
 
    def get_ssdqk_json(self, pq_obj):
       datas = []
@@ -78,8 +84,8 @@ class TongZi(object):
 
       base_json = '{"text": "送售电情况", "placeholder": "请输入一级分类名称", "key": %.17f, ' \
            '"values":[%s],"children":[]}'
-      base_str =  ',{"key": %.17f, "text":"%s", "inputValue": "送受电量 %s, 计划电量 %s,' \
-                  '完成比 %s, 最高负荷 %s, 最低负荷 %s"}'
+      base_str =  ',{"key": %.17f, "text":"%s", "inputValue": "送受电量 %s,计划电量 %s,' \
+                  '完成比 %s, 最高负荷 %s,最低负荷 %s"}'
       temp_str = ''
 
       for i in range(5):
@@ -91,6 +97,7 @@ class TongZi(object):
       ssdqk_json = base_json % (random(), temp_str[1:])
 
       return ssdqk_json
+
 
    def get_jzqk_json(self, pq_obj):
       datas = []
@@ -114,6 +121,7 @@ class TongZi(object):
 
       jzqk_json = '{"key": %.17f, "text": "机组运行情况", "placeholder": "请输入一级分类名称", "values": %s], "children": []}' % (random(), values[:-1])
       return jzqk_json
+
 
    def parse_jzyxqk(self, data):
       v1 = []
@@ -176,7 +184,7 @@ class TongZi(object):
 
       if json_str['success'] == False:
 
-         return 'null', 'null'
+         return 'null','null'
 
       htmls = json_str['content']
       pq_obj = pq(htmls)
@@ -186,23 +194,23 @@ class TongZi(object):
       hdyxqk_json = self.get_hdyxqk_json(pq_obj)
       ddyxjl_json = self.get_ddyxjl_json(pq_obj)
       temp_json = ''
-      temp_json = '[%s]' % (('%s, %s, %s, %s') % (dlqk_json, ssdq_json, jzqk_json, ddyxjl_json))
+      temp_json = '[%s]' % (('%s,%s,%s,%s') % (dlqk_json,ssdq_json,jzqk_json,ddyxjl_json))
 
       return temp_json, hdyxqk_json
 
    def save_detial(self, datas, hdyxqk_json):
       insert_sql = 'INSERT INTO "plant_app_core"."tb_daily_production_report" ( date,'\
-      'content, create_time, creator) VALUES (%(date)s, %(content)s, %(create_time)s, %(creator)s);'
+      'content , create_time , creator ) VALUES (%(date)s,%(content)s ,%(create_time)s ,%(creator)s);'
 
       update_sql = 'UPDATE "plant_app_core"."tb_daily_production_report" '\
-      ' SET content=%(content)s, create_time = %(create_time)s, creator = %(creator)s '\
+      ' SET content=%(content)s , create_time = %(create_time)s , creator = %(creator)s '\
       'WHERE (date=%(date)s);'
 
       insert_sql2 = 'INSERT INTO "plant_app_core"."tb_huo_dian_qing_kuang" ( date,'\
-      'content, create_time, creator) VALUES (%(date)s, %(content)s, %(create_time)s, %(creator)s);'
+      'content , create_time , creator ) VALUES (%(date)s , %(content)s ,%(create_time)s ,%(creator)s);'
 
       update_sql2 = 'UPDATE "plant_app_core"."tb_huo_dian_qing_kuang" '\
-      ' SET content=%(content)s, create_time = %(create_time)s, creator = %(creator)s '\
+      ' SET content=%(content)s , create_time = %(create_time)s , creator = %(creator)s '\
       'WHERE (date=%(date)s);'
 
       if datas[1] != 'null':
@@ -210,8 +218,8 @@ class TongZi(object):
          con2 = {}
          con['content'] = datas[1]
          con['date'] = datetime.strptime(datas[0], '%Y-%m-%d')
-         now = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
-         con['create_time'] = datetime.strptime(now, '%Y-%m-%d %H:%M:%S')
+         now = datetime.strftime(datetime.now(),'%Y-%m-%d %H:%M:%S')
+         con['create_time'] = datetime.strptime(now,'%Y-%m-%d %H:%M:%S')
          con['creator'] = '10086'
          con2['content'] = hdyxqk_json[1]
          con2['date'] = datetime.strptime(hdyxqk_json[0], '%Y-%m-%d')
@@ -220,15 +228,7 @@ class TongZi(object):
          self.update_insert(insert_sql, update_sql, con)
 
    def get_all_day_datas(self):
-      with closing(self.db.engine.connect()) as cn:
-         res = cn.execute('SELECT MAX(date) FROM plant_app_core.tb_daily_production_report;')
-         data = res.fetchall()
-
-      if not data[0][0]:
-         last_date = datetime.strptime('2017-10-01', '%Y-%m-%d')
-      else:
-         last_date = data[0][0]
-
+      last_date = datetime.strptime('2017-10-01', '%Y-%m-%d')
       last_date_str = datetime.strftime(last_date, '%Y-%m-%d')
       now_date = datetime.now()
       now_date_str = datetime.strftime(now_date, '%Y-%m-%d')
@@ -247,9 +247,7 @@ class TongZi(object):
          last_date += timedelta(days = 1)
          last_date_str = datetime.strftime(last_date, '%Y-%m-%d')
 
-   def start(self):
-      self.get_all_day_datas()
-
 if __name__ == '__main__':
    test = TongZi()
-   test.start()
+   test.get_all_day_datas()
+
